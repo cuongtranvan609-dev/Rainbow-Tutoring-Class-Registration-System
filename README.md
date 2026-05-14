@@ -53,12 +53,12 @@ Linux:   chmod 775 uploads/
 
 ### Bước 5 — Truy cập
 ```
-http://localhost/cauVong/
+http://localhost/rainbow/
 ```
 
 ---
 
-## Tài khoản demo (mật khẩu đều là: `123456`)
+## Tài khoản demo (mật khẩu đều là: `password`)
 
 | Email                  | Vai trò   |
 |------------------------|-----------|
