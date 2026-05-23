@@ -185,4 +185,32 @@ if ($action === 'update_profile') {
     jsonOut(['success' => true, 'message' => 'Đã lưu thay đổi']);
 }
 
+// ── Đổi mật khẩu ───────────────────────────────────────────
+if ($action === 'change_password') {
+    if (empty($_SESSION['user_id'])) {
+        jsonOut(['success' => false, 'error' => 'Chưa đăng nhập'], 401);
+    }
+    
+    $accountId = $_SESSION['user_id'];
+    $pwdCurrent = $input['pwdCurrent'] ?? '';
+    $pwdNew = $input['pwdNew'] ?? '';
+    
+    if (!$pwdCurrent || !$pwdNew) {
+        jsonOut(['success' => false, 'error' => 'Vui lòng nhập đầy đủ thông tin'], 400);
+    }
+    
+    $stmt = $pdo->prepare("SELECT password FROM user_accounts WHERE id=?");
+    $stmt->execute([$accountId]);
+    $user = $stmt->fetch();
+    
+    if (!$user || $user['password'] !== $pwdCurrent) {
+        jsonOut(['success' => false, 'error' => 'Mật khẩu hiện tại không đúng'], 400);
+    }
+    
+    $stmt = $pdo->prepare("UPDATE user_accounts SET password=? WHERE id=?");
+    $stmt->execute([$pwdNew, $accountId]);
+    
+    jsonOut(['success' => true, 'message' => 'Đổi mật khẩu thành công!']);
+}
+
 jsonOut(['error' => 'Action không hợp lệ'], 400);

@@ -173,9 +173,9 @@ session_start();
           <div class="contact-icon icon-fb">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
           </div>
-          <h3>Hợp tác & Đối tác</h3>
-          <p>Đối với các cơ hội hợp tác, tài trợ, truyền thông hoặc bất kỳ vấn đề nào liên quan đến chương trình và hoạt động của chúng tôi, vui lòng liên hệ qua trang Facebook.</p>
-          <a href="#" class="btn-fb">Nhắn tin trên Facebook</a>
+          <h3>Liên hệ tư vấn</h3>
+          <p>“Đối với nhu cầu học tập, ứng tuyển làm gia sư hoặc sử dụng dịch vụ của Gia sư Cầu Vồng, quý phụ huynh và học viên vui lòng liên hệ qua trang Facebook/Zalo chính thức của chúng tôi.”</p>
+          <a href="#" class="contact-btn-fb">Nhắn tin trên Facebook/Zalo</a>
         </div>
         <div class="contact-card">
           <div class="contact-icon icon-bug">
@@ -183,7 +183,7 @@ session_start();
           </div>
           <h3>Vấn đề về website</h3>
           <p>Bạn gặp lỗi, trang bị hỏng hoặc gặp khó khăn khi sử dụng website? Hãy gửi email cho chúng tôi để được hỗ trợ.</p>
-          <a href="mailto:cuongtranvan609@gmail.com" class="btn-outline">Email cho đội kỹ thuật</a>
+          <a href="mailto:cuongtranvan609@gmail.com" class="contact-btn-outline">Email cho đội kỹ thuật</a>
           <div class="contact-email">cuongtranvan609@gmail.com</div>
         </div>
       </div>
@@ -884,11 +884,90 @@ session_start();
             <div id="profileMsg" style="display:none;margin-bottom:0.5rem;"></div>
             <button class="btn btn-primary btn-sm" onclick="saveProfile()">Lưu thay đổi</button>
           </div>
+          <div class="form-card" style="max-width: 600px; margin-top: 1.5rem;">
+            <div class="form-card-title">Đổi mật khẩu</div>
+            <div class="form-group">
+              <label class="form-label">Mật khẩu hiện tại</label>
+              <input type="password" class="form-control" id="pwdCurrent" />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Mật khẩu mới</label>
+                <input type="password" class="form-control" id="pwdNew" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Xác nhận mật khẩu mới</label>
+                <input type="password" class="form-control" id="pwdConfirm" />
+              </div>
+            </div>
+            <div id="pwdMsg" style="display:none;margin-bottom:0.5rem;"></div>
+            <button class="btn btn-outline btn-sm" onclick="changePassword()">Cập nhật mật khẩu</button>
+          </div>
         </div>
 
       </div><!-- /.dash-content -->
     </div><!-- /.dash-wrap -->
   </div><!-- /#page-dashboard -->
+
+  <!-- ============================================================
+       PAGE: TERMS OF SERVICE
+  ============================================================ -->
+  <div id="page-terms" class="page">
+    <div class="legal-wrap">
+      <h1>Điều khoản Dịch vụ</h1>
+      <p class="legal-date">Cập nhật lần cuối: 23/05/2026</p>
+      
+      <div class="legal-content">
+        <h2>1. Giới thiệu</h2>
+        <p>Chào mừng bạn đến với Lớp Gia sư Cầu Vồng. Bằng việc truy cập và sử dụng nền tảng của chúng tôi, bạn đồng ý tuân thủ các điều khoản và điều kiện dưới đây.</p>
+        
+        <h2>2. Tài khoản người dùng</h2>
+        <ul>
+          <li>Bạn cam kết cung cấp thông tin chính xác và đầy đủ khi đăng ký tài khoản.</li>
+          <li>Bạn chịu trách nhiệm bảo mật thông tin đăng nhập của mình (bao gồm cả các tài khoản phụ huynh/học sinh liên kết).</li>
+          <li>Nền tảng có quyền khóa tài khoản nếu phát hiện hành vi gian lận, vi phạm đạo đức học đường hoặc cung cấp thông tin sai lệch.</li>
+        </ul>
+        
+        <h2>3. Quyền và Trách nhiệm của Giáo viên</h2>
+        <p>Giáo viên trên nền tảng Cầu Vồng phải đảm bảo truyền đạt kiến thức chuẩn xác, tuân thủ đúng thời gian biểu đã cam kết và duy trì thái độ sư phạm chuẩn mực. Nền tảng sẽ tạm giữ học phí và chỉ thanh toán cho giáo viên sau khi hoàn thành các buổi học theo đúng thỏa thuận.</p>
+        
+        <h2>4. Đăng ký và Thanh toán Học phí</h2>
+        <p>Học sinh hoặc phụ huynh có trách nhiệm đóng học phí theo đúng thông báo của mỗi lớp. Học phí sau khi đã nộp sẽ không được hoàn trả trừ trường hợp lớp học bị hủy do lỗi từ phía trung tâm hoặc giáo viên.</p>
+        
+        <h2>5. Yêu cầu mở lớp mới (Crowdsourcing)</h2>
+        <p>Mọi yêu cầu mở lớp đều phải tuân thủ chuẩn mực giáo dục. Quản trị viên (Admin) có toàn quyền quyết định việc duyệt, hủy bỏ hoặc điều chỉnh yêu cầu mở lớp để phù hợp với định hướng của trung tâm.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       PAGE: PRIVACY POLICY
+  ============================================================ -->
+  <div id="page-privacy" class="page">
+    <div class="legal-wrap">
+      <h1>Chính sách Bảo mật</h1>
+      <p class="legal-date">Cập nhật lần cuối: 23/05/2026</p>
+      
+      <div class="legal-content">
+        <h2>1. Mục đích thu thập thông tin</h2>
+        <p>Lớp Gia sư Cầu Vồng thu thập thông tin cá nhân (Họ tên, số điện thoại, email) nhằm mục đích:</p>
+        <ul>
+          <li>Xác thực danh tính và hỗ trợ đăng nhập, khôi phục tài khoản.</li>
+          <li>Liên lạc thông báo lịch học, thay đổi lớp, thông báo đóng học phí.</li>
+          <li>Cải thiện trải nghiệm nền tảng và cung cấp các lớp học phù hợp với nhu cầu.</li>
+        </ul>
+        
+        <h2>2. Bảo mật thông tin</h2>
+        <p>Chúng tôi cam kết sử dụng các biện pháp kỹ thuật và tổ chức phù hợp để bảo vệ thông tin cá nhân của bạn khỏi truy cập trái phép, tiết lộ hoặc phá hoại.</p>
+        
+        <h2>3. Chia sẻ thông tin</h2>
+        <p>Chúng tôi tuyệt đối không bán, trao đổi hoặc cho thuê thông tin cá nhân của bạn cho bên thứ ba. Thông tin chỉ có thể được chia sẻ nội bộ giữa Giáo viên và Học sinh (để phục vụ việc liên lạc học tập) hoặc theo yêu cầu hợp pháp từ cơ quan nhà nước.</p>
+        
+        <h2>4. Quyền của người dùng</h2>
+        <p>Bạn có quyền truy cập, chỉnh sửa hoặc yêu cầu xóa bỏ thông tin cá nhân của mình thông qua phần <strong>Hồ sơ cá nhân</strong> hoặc bằng cách liên hệ với đội ngũ hỗ trợ kỹ thuật của chúng tôi.</p>
+      </div>
+    </div>
+  </div>
 
   <!-- ============================================================
        FOOTER
@@ -900,8 +979,8 @@ session_start();
     <div class="footer-right">
       <a href="#" onclick="showPage('about'); return false;">Giới thiệu</a>
       <a href="#" onclick="showPage('contact'); return false;">Liên hệ</a>
-      <a href="#" onclick="return false;">Điều khoản Dịch vụ</a>
-      <a href="#" onclick="return false;">Chính sách Bảo mật</a>
+      <a href="#" onclick="showPage('terms'); return false;">Điều khoản Dịch vụ</a>
+      <a href="#" onclick="showPage('privacy'); return false;">Chính sách Bảo mật</a>
     </div>
   </footer>
 

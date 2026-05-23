@@ -752,6 +752,46 @@ async function saveProfile() {
   setTimeout(() => { msgEl.style.display = 'none'; }, 3000);
 }
 
+async function changePassword() {
+  const pwdCurrent = document.getElementById('pwdCurrent').value;
+  const pwdNew     = document.getElementById('pwdNew').value;
+  const pwdConfirm = document.getElementById('pwdConfirm').value;
+  const msgEl      = document.getElementById('pwdMsg');
+
+  if (!pwdCurrent || !pwdNew || !pwdConfirm) {
+    msgEl.className = 'alert alert-error';
+    msgEl.textContent = 'Vui lòng nhập đầy đủ thông tin!';
+    msgEl.style.display = 'block';
+    return;
+  }
+  
+  if (pwdNew !== pwdConfirm) {
+    msgEl.className = 'alert alert-error';
+    msgEl.textContent = 'Mật khẩu xác nhận không khớp!';
+    msgEl.style.display = 'block';
+    return;
+  }
+
+  const data = await apiFetch('api/auth.php', {
+    method: 'POST',
+    body: JSON.stringify({ action: 'change_password', pwdCurrent, pwdNew }),
+  });
+
+  msgEl.style.display = 'block';
+  if (data.success) {
+    msgEl.className = 'alert alert-success';
+    msgEl.textContent = '✅ Đổi mật khẩu thành công!';
+    document.getElementById('pwdCurrent').value = '';
+    document.getElementById('pwdNew').value = '';
+    document.getElementById('pwdConfirm').value = '';
+  } else {
+    msgEl.className = 'alert alert-error';
+    msgEl.textContent = data.error || 'Lỗi khi đổi mật khẩu';
+  }
+  setTimeout(() => { msgEl.style.display = 'none'; }, 3000);
+}
+
+
 /* ----------------------------------------------------------
    APPLY (ứng tuyển giáo viên)
 ---------------------------------------------------------- */
