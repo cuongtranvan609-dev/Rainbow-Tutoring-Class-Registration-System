@@ -136,6 +136,29 @@ CREATE TABLE IF NOT EXISTS payments (
     FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
     FOREIGN KEY (class_id)   REFERENCES classes(id) ON DELETE CASCADE
 );
+-- ── Bảng yêu cầu mở lớp (Class Requests) ─────────────────────
+CREATE TABLE IF NOT EXISTS class_requests (
+    id             INT AUTO_INCREMENT PRIMARY KEY,
+    requester_id   INT NOT NULL,
+    subject        VARCHAR(50) NOT NULL,
+    level          VARCHAR(50) NOT NULL,
+    format         VARCHAR(50) NOT NULL,
+    teacher_id     INT DEFAULT NULL,
+    notes          TEXT,
+    status         ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+    admin_reply    TEXT,
+    created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (requester_id) REFERENCES user_accounts(id) ON DELETE CASCADE,
+    FOREIGN KEY (teacher_id)   REFERENCES teachers(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS class_request_votes (
+    request_id INT NOT NULL,
+    account_id INT NOT NULL,
+    PRIMARY KEY (request_id, account_id),
+    FOREIGN KEY (request_id) REFERENCES class_requests(id) ON DELETE CASCADE,
+    FOREIGN KEY (account_id) REFERENCES user_accounts(id) ON DELETE CASCADE
+);
 
 
 -- ── Seed dữ liệu mẫu ────────────────────────────────────────

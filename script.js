@@ -1043,7 +1043,7 @@ function modalUserForm(u) {
       <div class="form-group">
         <label class="form-label">Vai trò</label>
         <select class="form-select" id="mUserRole">
-          ${['student','teacher','admin'].map(r =>
+          ${['student','teacher','parent','admin'].map(r =>
             `<option value="${r}" ${u && u.role === r ? 'selected' : ''}>${roleLabel(r)}</option>`).join('')}
         </select>
       </div>

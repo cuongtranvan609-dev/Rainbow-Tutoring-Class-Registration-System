@@ -657,6 +657,7 @@ session_start();
               <option value="admin">Admin</option>
               <option value="teacher">Giáo viên</option>
               <option value="student">Học sinh</option>
+              <option value="parent">Phụ huynh</option>
             </select>
           </div>
           <div class="table-wrap">
