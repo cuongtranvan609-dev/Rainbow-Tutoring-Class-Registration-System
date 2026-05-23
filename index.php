@@ -163,27 +163,29 @@ session_start();
        PAGE: CONTACT (LIÊN HỆ)
   ============================================================ -->
   <div id="page-contact" class="page">
+    <div class="contact-hero">
+      <h1>Liên hệ với chúng tôi</h1>
+      <p>Chúng tôi luôn sẵn sàng lắng nghe và hỗ trợ bạn một cách tốt nhất. Vui lòng chọn kênh liên hệ phù hợp.</p>
+    </div>
+    
     <div class="contact-wrap">
-      <div class="contact-header">
-        <h1>Liên hệ với chúng tôi</h1>
-        <p>Chúng tôi rất mong nhận được phản hồi từ bạn. Vui lòng liên hệ qua kênh phù hợp bên dưới.</p>
-      </div>
       <div class="contact-cards">
         <div class="contact-card">
           <div class="contact-icon icon-fb">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
           </div>
           <h3>Liên hệ tư vấn</h3>
-          <p>“Đối với nhu cầu học tập, ứng tuyển làm gia sư hoặc sử dụng dịch vụ của Gia sư Cầu Vồng, quý phụ huynh và học viên vui lòng liên hệ qua trang Facebook/Zalo chính thức của chúng tôi.”</p>
-          <a href="#" class="contact-btn-fb">Nhắn tin trên Facebook/Zalo</a>
+          <p>Đối với nhu cầu học tập, ứng tuyển làm gia sư hoặc sử dụng dịch vụ của Gia sư Cầu Vồng, quý phụ huynh và học viên vui lòng liên hệ qua trang Facebook chính thức.</p>
+          <a href="#" class="contact-btn-fb">Nhắn tin trên Facebook</a>
         </div>
+        
         <div class="contact-card">
           <div class="contact-icon icon-bug">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-8M5.5 10A6.5 6.5 0 0 1 18.5 10M12 2v2M4 7l2 2M20 7l-2 2M2 13h2M20 13h2M4 19l2-2M20 19l-2-2"></path><path d="M12 12a3 3 0 0 0-3 3v2a3 3 0 0 0 6 0v-2a3 3 0 0 0-3-3z"></path></svg>
           </div>
           <h3>Vấn đề về website</h3>
-          <p>Bạn gặp lỗi, trang bị hỏng hoặc gặp khó khăn khi sử dụng website? Hãy gửi email cho chúng tôi để được hỗ trợ.</p>
-          <a href="mailto:cuongtranvan609@gmail.com" class="contact-btn-outline">Email cho đội kỹ thuật</a>
+          <p>Bạn gặp lỗi, trang bị hỏng hoặc gặp khó khăn khi sử dụng website? Đừng lo lắng, hãy gửi email trực tiếp cho đội ngũ kỹ thuật để được hỗ trợ nhanh nhất.</p>
+          <a href="mailto:cuongtranvan609@gmail.com" class="contact-btn-outline">Gửi email hỗ trợ</a>
           <div class="contact-email">cuongtranvan609@gmail.com</div>
         </div>
       </div>

@@ -7,14 +7,9 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$host = '127.0.0.1';
-$db   = 'cau_vong';
-$user = 'root';
-$pass = '';
+require_once '../config/db.php';
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8mb4", $user, $pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
     $account_id = $_SESSION['user_id'];
     $role = $_SESSION['role'];
