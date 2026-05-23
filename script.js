@@ -19,21 +19,33 @@ const MENUS = {
     { id: 'overview',     label: 'Tổng quan',        icon: '📊' },
     { id: 'users',        label: 'Người dùng',       icon: '👥' },
     { id: 'classes',      label: 'Lớp học',          icon: '📚' },
+    { id: 'admin-requests', label: 'Duyệt yêu cầu', icon: '📩' },
     { id: 'applications', label: 'Hồ sơ ứng tuyển', icon: '📋' },
     { id: 'interviews',   label: 'Lịch phỏng vấn',  icon: '📅' },
+    { id: 'tuition',      label: 'Học phí',          icon: '💰' },
     { id: 'profile',      label: 'Hồ sơ cá nhân',   icon: '👤' },
   ],
   teacher: [
     { id: 'my-classes', label: 'Lớp học của tôi', icon: '📚'  },
     { id: 'students',   label: 'Học sinh',         icon: '👨‍🎓' },
     { id: 'schedule',   label: 'Lịch dạy',         icon: '🗓️' },
+    { id: 'tuition',    label: 'Điểm danh',        icon: '✅' },
     { id: 'profile',    label: 'Hồ sơ cá nhân',   icon: '👤'  },
   ],
   student: [
     { id: 'my-enrolled', label: 'Lớp đã đăng ký', icon: '📖' },
     { id: 'find-class',  label: 'Tìm lớp học',    icon: '🔍' },
+    { id: 'teachers-dir',label: 'Kho giáo viên',  icon: '👩‍🏫' },
+    { id: 'class-requests', label: 'Góc nhu cầu', icon: '💡' },
+    { id: 'tuition',     label: 'Học phí',        icon: '💰' },
     { id: 'profile',     label: 'Hồ sơ cá nhân',  icon: '👤' },
   ],
+  parent: [
+    { id: 'teachers-dir',label: 'Kho giáo viên',  icon: '👩‍🏫' },
+    { id: 'class-requests', label: 'Góc nhu cầu', icon: '💡' },
+    { id: 'tuition',     label: 'Học phí con em', icon: '💰' },
+    { id: 'profile',     label: 'Hồ sơ cá nhân',  icon: '👤' },
+  ]
 };
 
 /* ----------------------------------------------------------
@@ -54,10 +66,10 @@ function fmtDate(dateStr) {
 }
 
 function roleBadgeClass(role) {
-  return { admin: 'badge-admin', teacher: 'badge-teacher', student: 'badge-student' }[role] || '';
+  return { admin: 'badge-admin', teacher: 'badge-teacher', student: 'badge-student', parent: 'badge-parent' }[role] || '';
 }
 function roleLabel(role) {
-  return { admin: 'Admin', teacher: 'Giáo viên', student: 'Học sinh' }[role] || role;
+  return { admin: 'Admin', teacher: 'Giáo viên', student: 'Học sinh', parent: 'Phụ huynh' }[role] || role;
 }
 function statusBadge(status) {
   const m = {
@@ -130,6 +142,7 @@ async function doLogin() {
 async function doRegister() {
   const name  = document.getElementById('regName').value.trim();
   const email = document.getElementById('regEmail').value.trim();
+  const phone = document.getElementById('regPhone').value.trim();
   const pwd   = document.getElementById('regPwd').value;
   const subject = regRole === 'teacher' ? document.getElementById('regSubject').value : '';
   const errEl = document.getElementById('regError');
@@ -139,7 +152,7 @@ async function doRegister() {
   errEl.style.display = 'none';
   sucEl.style.display = 'none';
 
-  if (!name || !email || !pwd) {
+  if (!name || !email || !phone || !pwd) {
     errEl.textContent = 'Vui lòng điền đầy đủ thông tin!';
     errEl.style.display = 'block';
     return;
@@ -151,7 +164,7 @@ async function doRegister() {
   try {
     const data = await apiFetch('api/auth.php', {
       method: 'POST',
-      body: JSON.stringify({ action: 'register', name, email, password: pwd, role: regRole, subject }),
+      body: JSON.stringify({ action: 'register', name, email, phone, password: pwd, role: regRole, subject }),
     });
 
     if (data.success) {
@@ -258,6 +271,10 @@ function renderDashboard() {
   if (currentRole === 'student') {
     loadEnrolledClasses();
     loadFindClasses();
+    if (typeof loadTuition === 'function') loadTuition();
+  }
+  if (currentRole === 'parent' || currentRole === 'admin' || currentRole === 'teacher') {
+    if (typeof loadTuition === 'function') loadTuition();
   }
 }
 
@@ -266,6 +283,10 @@ function showSection(id, el) {
   el.classList.add('active');
   document.querySelectorAll('.dash-section').forEach(x => x.classList.remove('active'));
   document.getElementById('sec-' + id)?.classList.add('active');
+
+  if (id === 'teachers-dir') loadTeachersDir();
+  if (id === 'class-requests') loadClassRequests();
+  if (id === 'admin-requests') loadAdminRequests();
 }
 
 /* ----------------------------------------------------------
@@ -345,9 +366,11 @@ async function loadUsers(role = '') {
       <td><span class="badge ${u.status === 'active' ? 'badge-active' : 'badge-pending'}">
         ${u.status === 'active' ? 'Hoạt động' : 'Chờ duyệt'}
       </span></td>
-      <td style="display: flex; gap: 6px;">
-        <button class="action-btn action-btn-primary" onclick="editUser(${u.id}, '${u.name}', '${u.role}', '${u.status}')">Sửa</button>
-        <button class="action-btn action-btn-danger" onclick="deleteUser(${u.id}, '${u.name}')">Xoá</button>
+      <td>
+        <div style="display: flex; gap: 6px;">
+          <button class="action-btn action-btn-primary" onclick="editUser(${u.id}, '${u.name}', '${u.role}', '${u.status}')">Sửa</button>
+          <button class="action-btn action-btn-danger" onclick="deleteUser(${u.id}, '${u.name}')">Xoá</button>
+        </div>
       </td>
     </tr>
   `).join('');
@@ -385,9 +408,11 @@ async function loadAdminClasses() {
       <td>${c.teacher_name || '—'}</td>
       <td>${c.schedule || '—'}</td>
       <td>${c.enrolled}/${c.total_slots}</td>
-      <td style="display: flex; gap: 6px;">
-        <button class="action-btn action-btn-primary" onclick="showModal('editClass', ${JSON.stringify(c).replace(/"/g,"'")})">Sửa</button>
-        <button class="action-btn action-btn-danger" onclick="deleteClass(${c.id})">Xoá</button>
+      <td>
+        <div style="display: flex; gap: 6px;">
+          <button class="action-btn action-btn-primary" onclick="showModal('editClass', ${JSON.stringify(c).replace(/"/g,"'")})">Sửa</button>
+          <button class="action-btn action-btn-danger" onclick="deleteClass(${c.id})">Xoá</button>
+        </div>
       </td>
     </tr>
   `).join('');
@@ -429,11 +454,13 @@ async function loadApplications(filter) {
         <td>${fmtDate(a.created_at)}</td>
         <td>${a.interview_date ? fmtDate(a.interview_date) + ' ' + (a.interview_time || '') : 'Chưa đặt'}</td>
         <td><span class="badge ${cls}">${lbl}</span></td>
-        <td style="display: flex; gap: 4px; flex-wrap: wrap;">
-          ${a.cv_file ? `<button class="action-btn action-btn-primary" onclick="window.open('uploads/${a.cv_file}')">Xem CV</button>` : ''}
-          ${a.status === 'pending'   ? `<button class="action-btn action-btn-accent" onclick="updateApp(${a.id},'interview')">Mời PV</button>` : ''}
-          ${a.status === 'interview' ? `<button class="action-btn action-btn-primary" onclick="updateApp(${a.id},'approved')">Duyệt</button>` : ''}
-          ${a.status !== 'rejected' && a.status !== 'approved' ? `<button class="action-btn action-btn-danger" onclick="updateApp(${a.id},'rejected')">Từ chối</button>` : ''}
+        <td>
+          <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+            ${a.cv_file ? `<button class="action-btn action-btn-primary" onclick="window.open('uploads/${a.cv_file}')">Xem CV</button>` : ''}
+            ${a.status === 'pending'   ? `<button class="action-btn action-btn-accent" onclick="updateApp(${a.id},'interview')">Mời PV</button>` : ''}
+            ${a.status === 'interview' ? `<button class="action-btn action-btn-primary" onclick="updateApp(${a.id},'approved')">Duyệt</button>` : ''}
+            ${a.status !== 'rejected' && a.status !== 'approved' ? `<button class="action-btn action-btn-danger" onclick="updateApp(${a.id},'rejected')">Từ chối</button>` : ''}
+          </div>
         </td>
       </tr>
     `;
@@ -796,6 +823,10 @@ function setRegRole(role, el) {
   document.querySelectorAll('.role-tab').forEach(x => x.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('subjectGroup').style.display = role === 'teacher' ? 'block' : 'none';
+  const phoneLabel = document.getElementById('regPhoneLabel');
+  if (phoneLabel) {
+    phoneLabel.textContent = role === 'student' ? 'Số điện thoại phụ huynh *' : 'Số điện thoại của bạn *';
+  }
 }
 
 /* ----------------------------------------------------------
@@ -815,6 +846,35 @@ async function showModal(type, data) {
     html = modalUserForm(null);
   } else if (type === 'editUser') {
     html = modalUserForm(data);
+  } else if (type === 'createRequest') {
+    html = `
+      <div class="modal-header">
+        <h3 style="margin:0">Tạo yêu cầu mở lớp</h3>
+        <button class="btn btn-outline btn-sm" onclick="closeModal()">Đóng</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Môn học *</label>
+          <input type="text" id="reqSubject" class="form-control" placeholder="VD: Tiếng Anh giao tiếp" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Khối lớp *</label>
+          <input type="text" id="reqLevel" class="form-control" placeholder="VD: Lớp 5, Mất gốc" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Hình thức *</label>
+          <select id="reqFormat" class="form-control">
+            <option value="Online">Online</option>
+            <option value="Offline">Offline</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mô tả / Yêu cầu thêm</label>
+          <textarea id="reqNotes" class="form-control" rows="3" placeholder="VD: Lịch rảnh tối 3,5,7..."></textarea>
+        </div>
+        <button class="btn btn-primary" style="width:100%" onclick="submitRequest(${data || 'null'})">Gửi yêu cầu</button>
+      </div>
+    `;
   }
 
   content.innerHTML = html;
@@ -996,6 +1056,149 @@ async function saveUser() {
     msgEl.textContent = data.error || 'Lỗi khi lưu';
     msgEl.style.display = 'block';
   }
+}
+
+/* ============================================================
+   CROWDSOURCING CLASS REQUESTS
+============================================================ */
+async function loadTeachersDir() {
+  const grid = document.getElementById('teachersGrid');
+  grid.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--text3);">Đang tải...</div>';
+  const data = await apiFetch('api/teachers.php?action=list');
+  if (data.success && data.teachers.length) {
+    grid.innerHTML = data.teachers.map(t => `
+      <div class="class-card">
+        <div class="class-card-body">
+          <h3 class="class-name">${t.name}</h3>
+          <p class="class-teacher">Giáo viên môn: ${t.subject}</p>
+        </div>
+        <div class="class-card-footer">
+          <button class="btn btn-primary btn-sm" onclick="showModal('createRequest', ${t.id})">Yêu cầu mở lớp</button>
+        </div>
+      </div>
+    `).join('');
+  } else {
+    grid.innerHTML = '<div style="text-align:center;grid-column:1/-1;">Chưa có giáo viên nào</div>';
+  }
+}
+
+async function loadClassRequests() {
+  const grid = document.getElementById('requestsGrid');
+  grid.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--text3);">Đang tải...</div>';
+  const data = await apiFetch('api/requests.php?action=list');
+  if (data.success && data.requests.length) {
+    grid.innerHTML = data.requests.filter(r => r.status === 'pending').map(r => `
+      <div class="class-card">
+        <div class="class-card-body">
+          <div class="class-level">${r.subject} - ${r.level}</div>
+          <h3 class="class-name">Lớp ${r.subject} (${r.format})</h3>
+          <p class="class-teacher">Người gửi: ${r.requester_name}</p>
+          ${r.teacher_name ? `<p style="color:var(--accent);font-size:13px;font-weight:bold;">Đích danh: Cô/Thầy ${r.teacher_name}</p>` : ''}
+          <div style="margin-top:10px; font-size:13px;">👍 <b>${r.vote_count}</b> người muốn học</div>
+        </div>
+        <div class="class-card-footer">
+          ${r.has_voted > 0 ? 
+            `<button class="btn btn-outline btn-sm" disabled>Đã Vote</button>` : 
+            `<button class="btn btn-primary btn-sm" onclick="voteRequest(${r.id})">Tôi cũng muốn học</button>`
+          }
+        </div>
+      </div>
+    `).join('');
+  } else {
+    grid.innerHTML = '<div style="text-align:center;grid-column:1/-1;">Chưa có yêu cầu nào</div>';
+  }
+}
+
+async function voteRequest(id) {
+  const data = await apiFetch('api/requests.php', {
+    method: 'POST',
+    body: JSON.stringify({ action: 'vote', request_id: id })
+  });
+  if (data.success) {
+    alert('Đã vote thành công!');
+    loadClassRequests();
+  } else {
+    alert(data.message);
+  }
+}
+
+async function submitRequest(teacherId = null) {
+  const subject = document.getElementById('reqSubject').value;
+  const level = document.getElementById('reqLevel').value;
+  const format = document.getElementById('reqFormat').value;
+  const notes = document.getElementById('reqNotes').value;
+  const data = await apiFetch('api/requests.php', {
+    method: 'POST',
+    body: JSON.stringify({ action: 'create', subject, level, format, teacher_id: teacherId, notes })
+  });
+  if (data.success) {
+    closeModal();
+    loadClassRequests();
+    alert('Yêu cầu mở lớp đã được gửi!');
+  } else {
+    alert(data.message);
+  }
+}
+
+async function loadAdminRequests() {
+  const tbody = document.getElementById('adminRequestsTable');
+  const data = await apiFetch('api/requests.php?action=list');
+  if (data.success) {
+    const rows = data.requests.map(r => `
+      <tr>
+        <td>Lớp ${r.subject}</td>
+        <td>${r.subject} - ${r.level}</td>
+        <td>${r.requester_name}</td>
+        <td style="font-weight:bold;color:var(--accent);">${r.vote_count}</td>
+        <td>${r.teacher_name || 'Không'}</td>
+        <td><span class="badge badge-${r.status === 'pending' ? 'pending' : (r.status === 'approved' ? 'active' : 'danger')}">${r.status}</span></td>
+        <td>
+          ${r.status === 'pending' ? `
+            <button class="action-btn action-btn-primary" onclick="adminApproveRequest(${r.id}, ${r.teacher_id || 'null'})">Duyệt</button>
+            <button class="action-btn action-btn-danger" onclick="adminRejectRequest(${r.id})">Từ chối</button>
+          ` : ''}
+        </td>
+      </tr>
+    `).join('');
+    tbody.innerHTML = rows || '<tr><td colspan="7" style="text-align:center">Trống</td></tr>';
+  }
+}
+
+async function adminApproveRequest(id, teacherId) {
+  if (!confirm('Duyệt yêu cầu này và tự động tạo lớp?')) return;
+  const data = await apiFetch('api/requests.php', {
+    method: 'POST',
+    body: JSON.stringify({ action: 'approve', request_id: id, teacher_id: teacherId })
+  });
+  if (data.success) {
+    loadAdminRequests();
+    if(typeof loadAdminClasses === 'function') loadAdminClasses();
+    alert('Đã tạo lớp thành công!');
+  } else {
+    alert(data.message);
+  }
+}
+
+async function adminRejectRequest(id) {
+  const reply = prompt('Lý do từ chối:');
+  if (reply === null) return;
+  const data = await apiFetch('api/requests.php', {
+    method: 'POST',
+    body: JSON.stringify({ action: 'reject', request_id: id, reply })
+  });
+  if (data.success) {
+    loadAdminRequests();
+  } else {
+    alert(data.message);
+  }
+}
+
+function switchGuideTab(tab) {
+  document.querySelectorAll('.guide-tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.guide-section').forEach(sec => sec.classList.remove('active'));
+  
+  event.currentTarget.classList.add('active');
+  document.getElementById('guide-' + tab).classList.add('active');
 }
 
 /* ----------------------------------------------------------

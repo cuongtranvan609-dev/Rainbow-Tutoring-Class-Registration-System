@@ -1,11 +1,6 @@
 <?php
 // ============================================================
 //  api/classes.php  —  CRUD lớp học
-//  GET    /api/classes.php            → danh sách lớp
-//  GET    /api/classes.php?id=1       → chi tiết 1 lớp
-//  POST   /api/classes.php            → thêm lớp (admin)
-//  PUT    /api/classes.php            → sửa lớp (admin/teacher)
-//  DELETE /api/classes.php?id=1       → xóa lớp (admin)
 // ============================================================
 
 session_start();
@@ -38,18 +33,22 @@ if ($method === 'GET') {
     // Chi tiết 1 lớp
     if (!empty($_GET['id'])) {
         $stmt = $pdo->prepare(
-            "SELECT c.*, u.name AS teacher_name
+            "SELECT c.*, t.name AS teacher_name, t.account_id AS teacher_account_id
              FROM classes c
-             LEFT JOIN users u ON c.teacher_id = u.id
+             LEFT JOIN teachers t ON c.teacher_id = t.id
              WHERE c.id = ?"
         );
         $stmt->execute([(int)$_GET['id']]);
         $cls = $stmt->fetch();
         if (!$cls) jsonOut(['error' => 'Không tìm thấy lớp'], 404);
+        
+        // Map back teacher_id cho frontend (nếu frontend dùng teacher_id = account_id)
+        $cls['teacher_id'] = $cls['teacher_account_id'];
+        
         jsonOut(['success' => true, 'class' => $cls]);
     }
 
-    // Danh sách — có filter môn / cấp độ / teacher
+    // Danh sách — có filter môn / cấp độ / teacher (bằng account_id)
     $conditions = [];
     $params     = [];
 
@@ -62,20 +61,26 @@ if ($method === 'GET') {
         $params[]     = $_GET['level'];
     }
     if (!empty($_GET['teacher_id'])) {
-        $conditions[] = "c.teacher_id = ?";
+        $conditions[] = "t.account_id = ?";
         $params[]     = (int)$_GET['teacher_id'];
     }
 
     $where = $conditions ? "WHERE " . implode(" AND ", $conditions) : "";
-    $sql   = "SELECT c.*, u.name AS teacher_name
+    $sql   = "SELECT c.*, t.name AS teacher_name, t.account_id AS teacher_account_id
               FROM classes c
-              LEFT JOIN users u ON c.teacher_id = u.id
+              LEFT JOIN teachers t ON c.teacher_id = t.id
               $where
               ORDER BY c.id DESC";
 
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
-    jsonOut(['success' => true, 'classes' => $stmt->fetchAll()]);
+    $classes = $stmt->fetchAll();
+    
+    foreach ($classes as &$c) {
+        $c['teacher_id'] = $c['teacher_account_id'];
+    }
+
+    jsonOut(['success' => true, 'classes' => $classes]);
 }
 
 // ── POST: thêm lớp (admin only) ─────────────────────────────
@@ -88,6 +93,14 @@ if ($method === 'POST') {
         if (empty($d[$f])) jsonOut(['error' => "Thiếu trường: $f"], 400);
     }
 
+    $teacher_account_id = $d['teacher_id'] ?? null;
+    $actual_teacher_id = null;
+    if ($teacher_account_id) {
+        $tStmt = $pdo->prepare("SELECT id FROM teachers WHERE account_id = ?");
+        $tStmt->execute([$teacher_account_id]);
+        $actual_teacher_id = $tStmt->fetchColumn() ?: null;
+    }
+
     $stmt = $pdo->prepare(
         "INSERT INTO classes (name, subject, teacher_id, schedule, total_slots, level, location, description)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
@@ -95,7 +108,7 @@ if ($method === 'POST') {
     $stmt->execute([
         $d['name'],
         $d['subject'],
-        $d['teacher_id'] ?? null,
+        $actual_teacher_id,
         $d['schedule']   ?? null,
         $d['total_slots'] ?? 15,
         $d['level'],
@@ -114,14 +127,22 @@ if ($method === 'PUT') {
 
     // Giáo viên chỉ được sửa lớp của mình
     if ($_SESSION['role'] === 'teacher') {
-        $check = $pdo->prepare("SELECT teacher_id FROM classes WHERE id = ?");
+        $check = $pdo->prepare("SELECT t.account_id FROM classes c JOIN teachers t ON c.teacher_id = t.id WHERE c.id = ?");
         $check->execute([$id]);
         $row = $check->fetch();
-        if (!$row || (int)$row['teacher_id'] !== (int)$_SESSION['user_id']) {
+        if (!$row || (int)$row['account_id'] !== (int)$_SESSION['user_id']) {
             jsonOut(['error' => 'Không có quyền chỉnh sửa lớp này'], 403);
         }
     } elseif ($_SESSION['role'] !== 'admin') {
         jsonOut(['error' => 'Không có quyền'], 403);
+    }
+
+    $teacher_account_id = $d['teacher_id'] ?? null;
+    $actual_teacher_id = null;
+    if ($teacher_account_id) {
+        $tStmt = $pdo->prepare("SELECT id FROM teachers WHERE account_id = ?");
+        $tStmt->execute([$teacher_account_id]);
+        $actual_teacher_id = $tStmt->fetchColumn() ?: null;
     }
 
     $stmt = $pdo->prepare(
@@ -132,7 +153,7 @@ if ($method === 'PUT') {
     $stmt->execute([
         $d['name']        ?? '',
         $d['subject']     ?? '',
-        $d['teacher_id']  ?? null,
+        $actual_teacher_id,
         $d['schedule']    ?? null,
         $d['total_slots'] ?? 15,
         $d['level']       ?? 'THPT',

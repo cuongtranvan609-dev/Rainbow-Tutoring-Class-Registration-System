@@ -11,8 +11,9 @@ session_start();
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lớp Gia Sư Cầu Vồng</title>
-  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=2.0" />
+  <link rel="stylesheet" href="tuition.css" />
 </head>
 <body>
 
@@ -27,6 +28,8 @@ session_start();
 
     <div class="nav-links" id="navLinks">
       <button class="nav-link active" onclick="showPage('home')">Trang chủ</button>
+      <button class="nav-link" onclick="showPage('about')">Giới thiệu</button>
+      <button class="nav-link" onclick="showPage('guide')">Hướng dẫn</button>
       <button class="nav-link" onclick="showPage('classes')">Lớp học</button>
       <button class="nav-link" onclick="showPage('apply')">Ứng tuyển</button>
     </div>
@@ -43,12 +46,20 @@ session_start();
   <div id="page-home" class="page active">
 
     <div class="hero">
-      <h1>Kết nối Giáo viên<br>&amp; Học sinh tài năng</h1>
-      <div class="rainbow-bar"></div>
-      <p>Nền tảng gia sư trực tuyến uy tín — đăng ký lớp học, gửi CV, đặt lịch phỏng vấn dễ dàng</p>
-      <div class="hero-btns">
-        <button class="btn-hero btn-hero-white" onclick="showPage('classes')">Xem lớp học</button>
-        <button class="btn-hero btn-hero-outline" onclick="showPage('apply')">Ứng tuyển giáo viên</button>
+      <div class="hero-bg"></div>
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <div>
+          <h1>Đánh thức<br>tiềm năng học tập</h1>
+          <p>Nền tảng gia sư trực tuyến hiện đại — đăng ký lớp học, quản lý lịch trình và phát triển tri thức trên cùng một không gian số.</p>
+          <div class="hero-btns">
+            <button class="btn-hero btn-hero-white" onclick="showPage('classes')">Khám phá lớp học</button>
+            <button class="btn-hero btn-hero-outline" onclick="showPage('apply')">Trở thành Gia sư</button>
+          </div>
+        </div>
+        <div>
+          <!-- Placeholder if needed for right side or just balanced by overlay -->
+        </div>
       </div>
     </div>
 
@@ -86,12 +97,12 @@ session_start();
       </div>
     </div>
 
-    <div style="background: var(--primary-light); padding: 3rem 2rem; text-align: center;">
+    <div style="background: linear-gradient(135deg, var(--primary-dark), var(--primary)); padding: 5rem 2rem; text-align: center; color: white;">
       <div style="max-width: 600px; margin: 0 auto;">
-        <div style="font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; margin-bottom: 0.5rem;">
+        <div style="font-family: 'Outfit', sans-serif; font-size: 2rem; font-weight: 800; margin-bottom: 1rem;">
           Bắt đầu ngay hôm nay
         </div>
-        <p style="color: var(--text3); margin-bottom: 1.5rem;">
+        <p style="color: #d1d5db; margin-bottom: 2.5rem; font-size: 1.1rem;">
           Đăng ký tài khoản miễn phí, khám phá hàng chục lớp học chất lượng
         </p>
         <button class="btn btn-primary" style="padding: 12px 32px; font-size: 1rem;" onclick="showPage('register')">
@@ -99,8 +110,228 @@ session_start();
         </button>
       </div>
     </div>
-
+    
   </div><!-- /#page-home -->
+
+  <!-- ============================================================
+       PAGE: ABOUT (GIỚI THIỆU)
+  ============================================================ -->
+  <div id="page-about" class="page">
+    <div class="about-hero">
+      <div class="about-hero-content">
+        <h1>Hành trình thắp sáng tri thức</h1>
+        <p>Không chỉ là một nền tảng gia sư, chúng tôi là người bạn đồng hành trên con đường chinh phục ước mơ của mỗi học sinh.</p>
+      </div>
+    </div>
+    
+    <div class="about-container">
+      <div class="about-story">
+        <div class="story-text">
+          <h2>Câu chuyện của Cầu Vồng</h2>
+          <p>Mỗi đứa trẻ là một hạt giống mang trong mình những tiềm năng vô hạn, và mỗi giáo viên là một người gieo trồng cần mẫn. Tuy nhiên, việc tìm được một "người lái đò" thực sự thấu hiểu và phù hợp không phải là điều dễ dàng.</p>
+          <p>Hiểu được nỗi trăn trở của hàng ngàn phụ huynh, <strong>Lớp Gia Sư Cầu Vồng</strong> ra đời với một khát vọng duy nhất: Xây dựng một hệ sinh thái giáo dục tử tế, minh bạch và đầy cảm hứng. Chúng tôi ứng dụng công nghệ để kết nối nhanh chóng, nhưng giữ lại trọn vẹn giá trị nhân văn cốt lõi của giáo dục.</p>
+          <p>Tại Cầu Vồng, sự an tâm của phụ huynh, nụ cười của học sinh và niềm tự hào của giáo viên chính là thước đo thành công duy nhất.</p>
+        </div>
+        <div class="story-image">
+          <div class="image-placeholder">
+            🌟 Môi trường tử tế, minh bạch và đầy cảm hứng
+          </div>
+        </div>
+      </div>
+
+      <div class="mission-vision">
+        <div class="mv-card">
+          <div class="mv-icon">🎯</div>
+          <h3>Sứ mệnh</h3>
+          <p>Xóa bỏ rào cản tìm kiếm gia sư, kiến tạo một môi trường học tập cá nhân hóa, giúp học sinh phát triển tối đa tiềm năng nội tại.</p>
+        </div>
+        <div class="mv-card">
+          <div class="mv-icon">👁️</div>
+          <h3>Tầm nhìn</h3>
+          <p>Trở thành nền tảng giáo dục đáng tin cậy nhất Việt Nam, nơi mọi nỗ lực đều được đền đáp bằng sự tiến bộ thực sự.</p>
+        </div>
+        <div class="mv-card">
+          <div class="mv-icon">❤️</div>
+          <h3>Giá trị cốt lõi</h3>
+          <p>Tận tâm – Minh bạch – Hiện đại. Chúng tôi cam kết chất lượng thông qua quy trình xét duyệt giáo viên nghiêm ngặt nhất.</p>
+        </div>
+      </div>
+    </div>
+  </div><!-- /#page-about -->
+
+  <!-- ============================================================
+       PAGE: CONTACT (LIÊN HỆ)
+  ============================================================ -->
+  <div id="page-contact" class="page">
+    <div class="contact-wrap">
+      <div class="contact-header">
+        <h1>Liên hệ với chúng tôi</h1>
+        <p>Chúng tôi rất mong nhận được phản hồi từ bạn. Vui lòng liên hệ qua kênh phù hợp bên dưới.</p>
+      </div>
+      <div class="contact-cards">
+        <div class="contact-card">
+          <div class="contact-icon icon-fb">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+          </div>
+          <h3>Hợp tác & Đối tác</h3>
+          <p>Đối với các cơ hội hợp tác, tài trợ, truyền thông hoặc bất kỳ vấn đề nào liên quan đến chương trình và hoạt động của chúng tôi, vui lòng liên hệ qua trang Facebook.</p>
+          <a href="#" class="btn-fb">Nhắn tin trên Facebook</a>
+        </div>
+        <div class="contact-card">
+          <div class="contact-icon icon-bug">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-8M5.5 10A6.5 6.5 0 0 1 18.5 10M12 2v2M4 7l2 2M20 7l-2 2M2 13h2M20 13h2M4 19l2-2M20 19l-2-2"></path><path d="M12 12a3 3 0 0 0-3 3v2a3 3 0 0 0 6 0v-2a3 3 0 0 0-3-3z"></path></svg>
+          </div>
+          <h3>Vấn đề về website</h3>
+          <p>Bạn gặp lỗi, trang bị hỏng hoặc gặp khó khăn khi sử dụng website? Hãy gửi email cho chúng tôi để được hỗ trợ.</p>
+          <a href="mailto:cuongtranvan609@gmail.com" class="btn-outline">Email cho đội kỹ thuật</a>
+          <div class="contact-email">cuongtranvan609@gmail.com</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       PAGE: GUIDE (HƯỚNG DẪN)
+  ============================================================ -->
+  <div id="page-guide" class="page">
+    <div class="guide-hero">
+      <div class="guide-hero-content">
+        <h1>Cẩm nang Cầu Vồng</h1>
+        <p>Hướng dẫn chi tiết từ A-Z giúp bạn sử dụng nền tảng một cách hiệu quả nhất.</p>
+      </div>
+    </div>
+
+    <div class="guide-container">
+      <div class="guide-tabs">
+        <button class="guide-tab-btn active" onclick="switchGuideTab('parent')">👨‍👩‍👧 Dành cho Phụ huynh</button>
+        <button class="guide-tab-btn" onclick="switchGuideTab('student')">👨‍🎓 Dành cho Học sinh</button>
+        <button class="guide-tab-btn" onclick="switchGuideTab('teacher')">👨‍🏫 Dành cho Giáo viên</button>
+      </div>
+
+      <!-- TAB: PHỤ HUYNH -->
+      <div id="guide-parent" class="guide-section active">
+        <h2 class="guide-section-title">Quy trình tìm gia sư cho con</h2>
+        <div class="guide-steps">
+          <div class="guide-step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <h3>Khám phá kho giáo viên</h3>
+              <p>Phụ huynh có thể xem hồ sơ chi tiết, kinh nghiệm và đánh giá của các thầy cô trên hệ thống để chọn ra người phù hợp nhất với con mình.</p>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <h3>Tạo yêu cầu mở lớp</h3>
+              <p>Gửi yêu cầu lớp học (kèm môn học, khối lớp) và có thể chỉ định đích danh giáo viên. Hệ thống sẽ gom nhóm các học sinh có cùng nhu cầu.</p>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <h3>Thanh toán & Bắt đầu học</h3>
+              <p>Sau khi Admin duyệt lớp, phụ huynh tiến hành thanh toán học phí qua ví điện tử hoặc chuyển khoản. Học sinh sẽ nhận được lịch học ngay lập tức.</p>
+            </div>
+          </div>
+        </div>
+
+        <h2 class="guide-section-title" style="margin-top: 3rem;">Câu hỏi thường gặp (FAQ)</h2>
+        <div class="faq-list">
+          <details class="faq-item">
+            <summary>Làm sao để tôi biết giáo viên có chất lượng hay không?</summary>
+            <div class="faq-answer">Tất cả giáo viên trên Cầu Vồng đều phải trải qua vòng phỏng vấn chuyên môn khắt khe và phải cung cấp bằng cấp chứng chỉ xác thực. Ngoài ra, bạn có thể xem các đánh giá từ phụ huynh khác.</div>
+          </details>
+          <details class="faq-item">
+            <summary>Nếu con tôi nghỉ ốm thì có được học bù không?</summary>
+            <div class="faq-answer">Có. Bạn vui lòng báo trước cho giáo viên ít nhất 12 tiếng. Hệ thống điểm danh sẽ ghi nhận và sắp xếp lịch học bù mà không mất thêm phí.</div>
+          </details>
+        </div>
+      </div>
+
+      <!-- TAB: HỌC SINH -->
+      <div id="guide-student" class="guide-section">
+        <h2 class="guide-section-title">Hướng dẫn học tập hiệu quả</h2>
+        <div class="guide-steps">
+          <div class="guide-step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <h3>Theo dõi lịch học</h3>
+              <p>Đăng nhập vào hệ thống thường xuyên để xem thời khóa biểu trong phần "Lớp đã đăng ký". Đừng quên vào lớp đúng giờ nhé!</p>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <h3>Tương tác với giáo viên</h3>
+              <p>Trong quá trình học, nếu có bài tập khó, đừng ngại nhắn tin hỏi trực tiếp giáo viên. Các thầy cô luôn sẵn sàng hỗ trợ.</p>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <h3>Bầu chọn lớp mới</h3>
+              <p>Nếu em muốn học một môn nào đó mà chưa có lớp, hãy vào "Góc nhu cầu mở lớp" để gửi yêu cầu hoặc Vote cho yêu cầu của bạn bè.</p>
+            </div>
+          </div>
+        </div>
+
+        <h2 class="guide-section-title" style="margin-top: 3rem;">Câu hỏi thường gặp (FAQ)</h2>
+        <div class="faq-list">
+          <details class="faq-item">
+            <summary>Em quên mật khẩu đăng nhập thì phải làm sao?</summary>
+            <div class="faq-answer">Em có thể nhờ Phụ huynh liên hệ với Admin hoặc nhấn vào nút "Quên mật khẩu" ở màn hình đăng nhập để đặt lại mật khẩu mới.</div>
+          </details>
+        </div>
+      </div>
+
+      <!-- TAB: GIÁO VIÊN -->
+      <div id="guide-teacher" class="guide-section">
+        <h2 class="guide-section-title">Quy trình hợp tác giảng dạy</h2>
+        <div class="guide-steps">
+          <div class="guide-step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <h3>Tạo hồ sơ ứng tuyển</h3>
+              <p>Đăng ký tài khoản Giáo viên và điền đầy đủ thông tin về trình độ, bằng cấp, môn học thế mạnh. Một hồ sơ đẹp sẽ thu hút nhiều phụ huynh.</p>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <h3>Phỏng vấn chuyên môn</h3>
+              <p>Admin sẽ xếp lịch phỏng vấn online hoặc offline để kiểm tra năng lực sư phạm. Vượt qua vòng này, hồ sơ của bạn sẽ được kích hoạt (Active).</p>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <h3>Nhận lớp & Báo cáo điểm danh</h3>
+              <p>Bạn có thể chủ động nhận lớp từ "Góc nhu cầu". Sau mỗi buổi học, hãy nhớ điểm danh học sinh trên hệ thống để tính lương chính xác.</p>
+            </div>
+          </div>
+        </div>
+
+        <h2 class="guide-section-title" style="margin-top: 3rem;">Câu hỏi thường gặp (FAQ)</h2>
+        <div class="faq-list">
+          <details class="faq-item">
+            <summary>Bao lâu thì tôi được thanh toán lương?</summary>
+            <div class="faq-answer">Hệ thống sẽ tổng hợp số buổi dạy và tiến hành thanh toán lương qua chuyển khoản vào ngày mùng 5 đến mùng 10 hàng tháng.</div>
+          </details>
+          <details class="faq-item">
+            <summary>Làm thế nào để được phụ huynh chỉ định đích danh?</summary>
+            <div class="faq-answer">Hãy tối ưu hồ sơ cá nhân: cập nhật ảnh đại diện chuyên nghiệp, ghi rõ thành tích giảng dạy và luôn nhiệt tình trong quá trình dạy để nhận được đánh giá cao.</div>
+          </details>
+        </div>
+      </div>
+      
+      <div class="guide-cta">
+        <h3>Bạn vẫn còn thắc mắc?</h3>
+        <p>Đội ngũ hỗ trợ của Cầu Vồng luôn sẵn sàng lắng nghe và giải đáp mọi vấn đề của bạn.</p>
+        <button class="btn btn-primary" onclick="alert('Tính năng Live Chat đang được phát triển!')">💬 Chat với Admin ngay</button>
+      </div>
+
+    </div>
+  </div><!-- /#page-guide -->
 
   <!-- ============================================================
        PAGE: CLASSES (public)
@@ -161,8 +392,8 @@ session_start();
   ============================================================ -->
   <div id="page-apply" class="page">
 
-    <div style="background: linear-gradient(135deg, #185fa5, #378add); color: white; padding: 3rem 2rem; text-align: center;">
-      <h2 style="font-family: 'Playfair Display', serif; font-size: 2rem; margin-bottom: 0.5rem;">Ứng tuyển Giáo viên</h2>
+    <div style="background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 4rem 2rem; text-align: center;">
+      <h2 style="font-family: 'Outfit', sans-serif; font-size: 2.5rem; margin-bottom: 0.8rem;">Ứng tuyển Giáo viên</h2>
       <p style="opacity: 0.9;">Gửi CV và đặt lịch phỏng vấn ngay hôm nay</p>
     </div>
 
@@ -272,12 +503,15 @@ session_start();
         <div class="auth-title">Đăng nhập</div>
         <div class="auth-sub">Chào mừng trở lại! Vui lòng đăng nhập.</div>
 
-        <div class="alert alert-success" style="font-size: 12px; margin-bottom: 1rem;">
-          <strong>Demo tài khoản:</strong><br />
-          Admin: admin@rainbow.vn / 123456<br />
-          Giáo viên: teacher@rainbow.vn / 123456<br />
-          Học sinh: student@rainbow.vn / 123456
-        </div>
+        <details class="demo-accounts-box">
+          <summary class="demo-title">Xem tài khoản Demo (Mật khẩu chung: <strong>123456</strong>)</summary>
+          <div class="demo-list">
+            <div class="demo-item"><span>Admin</span> admin@rainbow.vn</div>
+            <div class="demo-item"><span>Giáo viên</span> teacher@rainbow.vn</div>
+            <div class="demo-item"><span>Học sinh</span> student@rainbow.vn</div>
+            <div class="demo-item"><span>Phụ huynh</span> parent@rainbow.vn</div>
+          </div>
+        </details>
 
         <div class="form-group">
           <label class="form-label">Email</label>
@@ -319,6 +553,7 @@ session_start();
         <div class="role-tabs">
           <button class="role-tab active" onclick="setRegRole('student', this)">Học sinh</button>
           <button class="role-tab" onclick="setRegRole('teacher', this)">Giáo viên</button>
+          <button class="role-tab" onclick="setRegRole('parent', this)">Phụ huynh</button>
         </div>
 
         <div class="form-group">
@@ -328,6 +563,10 @@ session_start();
         <div class="form-group">
           <label class="form-label">Email *</label>
           <input type="email" class="form-control" id="regEmail" placeholder="email@example.com" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="regPhoneLabel">Số điện thoại phụ huynh *</label>
+          <input type="tel" class="form-control" id="regPhone" placeholder="0912345678" />
         </div>
         <div class="form-group">
           <label class="form-label">Mật khẩu * (tối thiểu 6 ký tự)</label>
@@ -516,6 +755,109 @@ session_start();
           </div>
         </div>
 
+        <!-- ALL: Tuition & Attendance -->
+        <div id="sec-tuition" class="dash-section">
+          <div class="dash-title">💰 Học Phí & Điểm Danh</div>
+          
+          <div class="tui-header-tabs" style="margin-bottom: 20px;">
+            <button class="tui-tab-btn active" onclick="switchTuiTab('students')">👨🎓 Học Sinh</button>
+            <button class="tui-tab-btn" onclick="switchTuiTab('payment')" id="tabPaymentBtn">💳 Thanh Toán</button>
+            <button class="tui-tab-btn" onclick="switchTuiTab('history')">📋 Lịch Sử</button>
+          </div>
+
+          <!-- TAB: Học Sinh -->
+          <div id="tui-tab-students" class="tui-section active">
+            <div class="tui-stats-row" id="tuiStatsRow"></div>
+            <div class="tui-table-wrapper">
+              <div class="tui-table-header">
+                <span class="tui-table-title">Danh sách</span>
+              </div>
+              <div style="overflow-x:auto">
+                <table class="tui-table">
+                  <thead>
+                    <tr>
+                      <th>Học sinh</th>
+                      <th>Lớp / Môn</th>
+                      <th>Giá/buổi</th>
+                      <th style="text-align:center">Tổng buổi</th>
+                      <th style="text-align:center">Đã học</th>
+                      <th>Học phí</th>
+                      <th>Đã trả</th>
+                      <th>Còn nợ</th>
+                      <th>Trạng thái</th>
+                      <th>Thao tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tuiStudentTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB: Thanh Toán -->
+          <div id="tui-tab-payment" class="tui-section">
+            <div class="tui-table-wrapper">
+              <div class="tui-table-header">
+                <span class="tui-table-title">Danh sách cần thanh toán</span>
+              </div>
+              <div style="overflow-x:auto">
+                <table class="tui-table">
+                  <thead>
+                    <tr>
+                      <th>Học sinh</th>
+                      <th>Tháng</th>
+                      <th>Đã học</th>
+                      <th>Học phí</th>
+                      <th>Đã trả</th>
+                      <th>Còn nợ</th>
+                      <th>Trạng thái</th>
+                      <th>Thanh toán</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tuiPaymentTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB: Lịch Sử -->
+          <div id="tui-tab-history" class="tui-section">
+            <div id="tuiHistoryList"></div>
+          </div>
+        </div>
+
+        <!-- PARENT/STUDENT: Teacher Directory -->
+        <div id="sec-teachers-dir" class="dash-section">
+          <div class="dash-title">👩‍🏫 Kho giáo viên</div>
+          <div class="class-grid" id="teachersGrid">
+            <div style="text-align:center;padding:3rem;color:var(--text3);">Đang tải…</div>
+          </div>
+        </div>
+
+        <!-- PARENT/STUDENT: Class Requests -->
+        <div id="sec-class-requests" class="dash-section">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <div class="dash-title" style="margin: 0;">💡 Góc nhu cầu mở lớp</div>
+            <button class="btn btn-primary btn-sm" onclick="showModal('createRequest')">+ Tạo yêu cầu mới</button>
+          </div>
+          <div class="class-grid" id="requestsGrid">
+            <div style="text-align:center;padding:3rem;color:var(--text3);">Đang tải…</div>
+          </div>
+        </div>
+
+        <!-- ADMIN: Review Requests -->
+        <div id="sec-admin-requests" class="dash-section">
+          <div class="dash-title">📩 Duyệt yêu cầu mở lớp</div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr><th>Yêu cầu</th><th>Môn / Lớp</th><th>Người gửi</th><th>Lượt Vote</th><th>Giáo viên yc</th><th>Trạng thái</th><th>Hành động</th></tr>
+              </thead>
+              <tbody id="adminRequestsTable"><tr><td colspan="7" style="text-align:center;color:var(--text3);">Đang tải…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- ALL: Profile -->
         <div id="sec-profile" class="dash-section">
           <div class="dash-title">👤 Hồ sơ cá nhân</div>
@@ -549,6 +891,21 @@ session_start();
   </div><!-- /#page-dashboard -->
 
   <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer class="site-footer">
+    <div class="footer-left">
+      &copy; 2026 Lớp Gia sư Cầu Vồng. Bản quyền thuộc về Lớp Gia sư Cầu Vồng.
+    </div>
+    <div class="footer-right">
+      <a href="#" onclick="showPage('about'); return false;">Giới thiệu</a>
+      <a href="#" onclick="showPage('contact'); return false;">Liên hệ</a>
+      <a href="#" onclick="return false;">Điều khoản Dịch vụ</a>
+      <a href="#" onclick="return false;">Chính sách Bảo mật</a>
+    </div>
+  </footer>
+
+  <!-- ============================================================
        MODAL
   ============================================================ -->
   <div id="modalOverlay" class="modal-overlay" style="display: none;"
@@ -559,5 +916,6 @@ session_start();
   </div>
 
   <script src="script.js"></script>
+  <script src="tuition.js"></script>
 </body>
 </html>

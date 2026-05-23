@@ -30,12 +30,21 @@ if ($method === 'GET') {
     $params = [];
     $where  = [];
 
-    if ($role)   { $where[] = "role = ?";   $params[] = $role; }
-    if ($status) { $where[] = "status = ?"; $params[] = $status; }
+    if ($role)   { $where[] = "u.role = ?";   $params[] = $role; }
+    if ($status) { $where[] = "u.status = ?"; $params[] = $status; }
 
-    $sql  = "SELECT id, name, email, role, status, phone, subject, created_at FROM users";
+    $sql  = "SELECT u.id, u.email, u.role, u.status, u.created_at,
+                    COALESCE(a.name, t.name, s.name, p.name) AS name,
+                    COALESCE(a.phone, t.phone, s.phone, p.phone) AS phone,
+                    t.subject
+             FROM user_accounts u
+             LEFT JOIN admins a ON u.id = a.account_id AND u.role = 'admin'
+             LEFT JOIN teachers t ON u.id = t.account_id AND u.role = 'teacher'
+             LEFT JOIN students s ON u.id = s.account_id AND u.role = 'student'
+             LEFT JOIN parents p ON u.id = p.account_id AND u.role = 'parent'";
+             
     if ($where) $sql .= " WHERE " . implode(' AND ', $where);
-    $sql .= " ORDER BY created_at DESC";
+    $sql .= " ORDER BY u.created_at DESC";
 
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
@@ -50,20 +59,43 @@ if ($method === 'POST') {
     $name  = trim($d['name']  ?? '');
     $email = trim($d['email'] ?? '');
     $pwd   = $d['password'] ?? 'Rainbow@2026';
-    $role  = in_array($d['role'] ?? '', ['admin','teacher','student']) ? $d['role'] : 'student';
+    $role  = in_array($d['role'] ?? '', ['admin','teacher','student','parent']) ? $d['role'] : 'student';
 
     if (!$name || !$email) jsonOut(['error' => 'Thiếu tên hoặc email'], 400);
 
-    $hash = password_hash($pwd, PASSWORD_BCRYPT);
+    $hash = $pwd;
     try {
+        $pdo->beginTransaction();
+        
         $stmt = $pdo->prepare(
-            "INSERT INTO users (name, email, password, role, status, phone, subject)
-             VALUES (?, ?, ?, ?, 'active', ?, ?)"
+            "INSERT INTO user_accounts (email, password, role, status)
+             VALUES (?, ?, ?, 'active')"
         );
-        $stmt->execute([$name, $email, $hash, $role, $d['phone'] ?? null, $d['subject'] ?? null]);
-        jsonOut(['success' => true, 'id' => (int)$pdo->lastInsertId()], 201);
+        $stmt->execute([$email, $hash, $role]);
+        $accountId = $pdo->lastInsertId();
+
+        if ($role === 'admin') {
+            $pdo->prepare("INSERT INTO admins (account_id, name, phone) VALUES (?, ?, ?)")
+                ->execute([$accountId, $name, $d['phone'] ?? null]);
+        } elseif ($role === 'teacher') {
+            $pdo->prepare("INSERT INTO teachers (account_id, name, phone, subject) VALUES (?, ?, ?, ?)")
+                ->execute([$accountId, $name, $d['phone'] ?? null, $d['subject'] ?? null]);
+        } elseif ($role === 'student') {
+            $pdo->prepare("INSERT INTO students (account_id, name, phone) VALUES (?, ?, ?)")
+                ->execute([$accountId, $name, $d['phone'] ?? null]);
+        } elseif ($role === 'parent') {
+            $pdo->prepare("INSERT INTO parents (account_id, name, phone) VALUES (?, ?, ?)")
+                ->execute([$accountId, $name, $d['phone'] ?? null]);
+        }
+
+        $pdo->commit();
+        jsonOut(['success' => true, 'id' => (int)$accountId], 201);
     } catch (PDOException $e) {
-        jsonOut(['error' => 'Email đã tồn tại'], 409);
+        $pdo->rollBack();
+        if (str_contains($e->getMessage(), 'Duplicate')) {
+            jsonOut(['error' => 'Email đã tồn tại'], 409);
+        }
+        jsonOut(['error' => 'Lỗi server'], 500);
     }
 }
 
@@ -74,21 +106,79 @@ if ($method === 'PUT') {
     $id = (int)($d['id'] ?? 0);
     if (!$id) jsonOut(['error' => 'Thiếu id'], 400);
 
-    $fields = [];
-    $params = [];
+    $accFields = [];
+    $accParams = [];
+    $profileFields = [];
+    $profileParams = [];
 
-    foreach (['name','email','phone','role','status','subject'] as $f) {
-        if (isset($d[$f])) { $fields[] = "$f = ?"; $params[] = $d[$f]; }
-    }
+    // Lấy thông tin user hiện tại để biết role
+    $stmt = $pdo->prepare("SELECT role FROM user_accounts WHERE id = ?");
+    $stmt->execute([$id]);
+    $user = $stmt->fetch();
+    if (!$user) jsonOut(['error' => 'User không tồn tại'], 404);
+    $currentRole = $user['role'];
+    $newRole = $d['role'] ?? $currentRole;
+
+    if (isset($d['email'])) { $accFields[] = "email = ?"; $accParams[] = $d['email']; }
+    if (isset($d['status'])) { $accFields[] = "status = ?"; $accParams[] = $d['status']; }
+    if (isset($d['role'])) { $accFields[] = "role = ?"; $accParams[] = $d['role']; }
     if (!empty($d['password'])) {
-        $fields[] = "password = ?";
-        $params[] = password_hash($d['password'], PASSWORD_BCRYPT);
+        $accFields[] = "password = ?";
+        $accParams[] = $d['password'];
     }
-    if (!$fields) jsonOut(['error' => 'Không có dữ liệu cần cập nhật'], 400);
 
-    $params[] = $id;
-    $pdo->prepare("UPDATE users SET " . implode(', ', $fields) . " WHERE id = ?")->execute($params);
-    jsonOut(['success' => true]);
+    if (isset($d['name'])) { $profileFields[] = "name = ?"; $profileParams[] = $d['name']; }
+    if (isset($d['phone'])) { $profileFields[] = "phone = ?"; $profileParams[] = $d['phone']; }
+    if (isset($d['subject']) && $newRole === 'teacher') { $profileFields[] = "subject = ?"; $profileParams[] = $d['subject']; }
+
+    try {
+        $pdo->beginTransaction();
+        
+        // Update user_accounts
+        if ($accFields) {
+            $accParams[] = $id;
+            $pdo->prepare("UPDATE user_accounts SET " . implode(', ', $accFields) . " WHERE id = ?")->execute($accParams);
+        }
+
+        // If role changed, we need to delete from old table and insert to new table
+        if ($newRole !== $currentRole) {
+            $oldTable = $currentRole . 's';
+            $newTable = $newRole . 's';
+            
+            // Get old profile data
+            $stmt = $pdo->prepare("SELECT * FROM $oldTable WHERE account_id = ?");
+            $stmt->execute([$id]);
+            $oldProfile = $stmt->fetch();
+            
+            // Delete from old
+            $pdo->prepare("DELETE FROM $oldTable WHERE account_id = ?")->execute([$id]);
+            
+            // Insert to new
+            $name = $d['name'] ?? $oldProfile['name'] ?? 'Unknown';
+            $phone = $d['phone'] ?? $oldProfile['phone'] ?? null;
+            $subject = $d['subject'] ?? null;
+            
+            if ($newRole === 'admin' || $newRole === 'student' || $newRole === 'parent') {
+                $pdo->prepare("INSERT INTO $newTable (account_id, name, phone) VALUES (?, ?, ?)")
+                    ->execute([$id, $name, $phone]);
+            } else if ($newRole === 'teacher') {
+                $pdo->prepare("INSERT INTO $newTable (account_id, name, phone, subject) VALUES (?, ?, ?, ?)")
+                    ->execute([$id, $name, $phone, $subject]);
+            }
+        } 
+        // Normal profile update without role change
+        else if ($profileFields) {
+            $table = $currentRole . 's';
+            $profileParams[] = $id;
+            $pdo->prepare("UPDATE $table SET " . implode(', ', $profileFields) . " WHERE account_id = ?")->execute($profileParams);
+        }
+
+        $pdo->commit();
+        jsonOut(['success' => true]);
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        jsonOut(['error' => 'Lỗi cập nhật'], 500);
+    }
 }
 
 // ── DELETE: xóa user ────────────────────────────────────────
@@ -98,7 +188,8 @@ if ($method === 'DELETE') {
     if (!$id) jsonOut(['error' => 'Thiếu id'], 400);
     if ($id === (int)$_SESSION['user_id']) jsonOut(['error' => 'Không thể xóa chính mình'], 400);
 
-    $pdo->prepare("DELETE FROM users WHERE id = ?")->execute([$id]);
+    // Xóa trong user_accounts sẽ tự động cascade xóa bảng phụ tương ứng
+    $pdo->prepare("DELETE FROM user_accounts WHERE id = ?")->execute([$id]);
     jsonOut(['success' => true]);
 }
 

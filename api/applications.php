@@ -110,14 +110,25 @@ if ($method === 'PUT') {
         $app->execute([$id]);
         $app = $app->fetch();
 
-        $exists = $pdo->prepare("SELECT id FROM users WHERE email = ?");
+        $exists = $pdo->prepare("SELECT id FROM user_accounts WHERE email = ?");
         $exists->execute([$app['email']]);
         if (!$exists->fetch()) {
-            $tmpPwd = password_hash('Rainbow@' . date('Y'), PASSWORD_BCRYPT);
-            $pdo->prepare(
-                "INSERT INTO users (name, email, password, role, status, subject)
-                 VALUES (?, ?, ?, 'teacher', 'active', ?)"
-            )->execute([$app['name'], $app['email'], $tmpPwd, $app['subject']]);
+            $tmpPwd = '123456'; // Default plain password
+            try {
+                $pdo->beginTransaction();
+                $pdo->prepare(
+                    "INSERT INTO user_accounts (email, password, role, status) VALUES (?, ?, 'teacher', 'active')"
+                )->execute([$app['email'], $tmpPwd]);
+                
+                $accountId = $pdo->lastInsertId();
+                
+                $pdo->prepare("INSERT INTO teachers (account_id, name, phone, subject) VALUES (?, ?, ?, ?)")
+                    ->execute([$accountId, $app['name'], $app['phone'], $app['subject']]);
+                
+                $pdo->commit();
+            } catch (Exception $e) {
+                $pdo->rollBack();
+            }
         }
     }
 

@@ -17,6 +17,17 @@ function jsonOut(array $data, int $code = 200): void {
     exit;
 }
 
+// Lấy thông tin phụ thuộc vào role
+function getProfileData($pdo, $accountId, $role) {
+    $table = $role . 's'; // admins, teachers, students, parents
+    if (!in_array($role, ['admin', 'teacher', 'student', 'parent'])) {
+        return null;
+    }
+    $stmt = $pdo->prepare("SELECT * FROM $table WHERE account_id = ?");
+    $stmt->execute([$accountId]);
+    return $stmt->fetch();
+}
+
 // ── Đăng nhập ────────────────────────────────────────────────
 if ($action === 'login') {
     $email = trim($input['email'] ?? '');
@@ -26,24 +37,33 @@ if ($action === 'login') {
         jsonOut(['success' => false, 'message' => 'Vui lòng nhập email và mật khẩu'], 400);
     }
 
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? LIMIT 1");
+    $stmt = $pdo->prepare("SELECT * FROM user_accounts WHERE email = ? LIMIT 1");
     $stmt->execute([$email]);
-    $user = $stmt->fetch();
+    $account = $stmt->fetch();
 
-    if (!$user || !password_verify($pwd, $user['password'])) {
+    if (!$account || $pwd !== $account['password']) {
         jsonOut(['success' => false, 'message' => 'Email hoặc mật khẩu không đúng'], 401);
     }
 
-    if ($user['status'] === 'pending') {
+    if ($account['status'] === 'pending') {
         jsonOut(['success' => false, 'message' => 'Tài khoản chưa được kích hoạt'], 403);
     }
 
-    $_SESSION['user_id'] = $user['id'];
-    $_SESSION['role']    = $user['role'];
-    $_SESSION['name']    = $user['name'];
+    $profile = getProfileData($pdo, $account['id'], $account['role']);
+    if (!$profile) {
+        jsonOut(['success' => false, 'message' => 'Hồ sơ người dùng không hợp lệ'], 500);
+    }
 
-    unset($user['password']);
-    jsonOut(['success' => true, 'user' => $user]);
+    $_SESSION['user_id'] = $account['id']; // account_id
+    $_SESSION['role']    = $account['role'];
+    $_SESSION['name']    = $profile['name'];
+
+    unset($account['password']);
+    
+    // Merge account and profile data for frontend
+    $userResponse = array_merge($account, $profile);
+    
+    jsonOut(['success' => true, 'user' => $userResponse]);
 }
 
 // ── Đăng xuất ────────────────────────────────────────────────
@@ -56,11 +76,12 @@ if ($action === 'logout') {
 if ($action === 'register') {
     $name    = trim($input['name'] ?? '');
     $email   = trim($input['email'] ?? '');
+    $phone   = trim($input['phone'] ?? '');
     $pwd     = $input['password'] ?? '';
-    $role    = in_array($input['role'] ?? '', ['student', 'teacher']) ? $input['role'] : 'student';
+    $role    = in_array($input['role'] ?? '', ['student', 'teacher', 'parent']) ? $input['role'] : 'student';
     $subject = trim($input['subject'] ?? '');
 
-    if (!$name || !$email || !$pwd) {
+    if (!$name || !$email || !$pwd || !$phone) {
         jsonOut(['success' => false, 'message' => 'Vui lòng điền đầy đủ thông tin'], 400);
     }
 
@@ -72,18 +93,42 @@ if ($action === 'register') {
         jsonOut(['success' => false, 'message' => 'Email không hợp lệ'], 400);
     }
 
-    $hash = password_hash($pwd, PASSWORD_BCRYPT);
-    // Teacher cần admin duyệt → pending; student active ngay
+    $hash = $pwd; // Bỏ mã hóa mật khẩu theo yêu cầu
     $status = $role === 'teacher' ? 'pending' : 'active';
 
     try {
+        $pdo->beginTransaction();
+
         $stmt = $pdo->prepare(
-            "INSERT INTO users (name, email, password, role, status, subject)
-             VALUES (?, ?, ?, ?, ?, ?)"
+            "INSERT INTO user_accounts (email, password, role, status) VALUES (?, ?, ?, ?)"
         );
-        $stmt->execute([$name, $email, $hash, $role, $status, $subject]);
+        $stmt->execute([$email, $hash, $role, $status]);
+        $accountId = $pdo->lastInsertId();
+
+        if ($role === 'student') {
+            $stmt = $pdo->prepare("SELECT id FROM parents WHERE phone = ? LIMIT 1");
+            $stmt->execute([$phone]);
+            $parent = $stmt->fetch();
+            $parentId = $parent ? $parent['id'] : null;
+
+            $pdo->prepare("INSERT INTO students (account_id, name, phone, parent_id) VALUES (?, ?, ?, ?)")
+                ->execute([$accountId, $name, $phone, $parentId]);
+        } elseif ($role === 'teacher') {
+            $pdo->prepare("INSERT INTO teachers (account_id, name, phone, subject) VALUES (?, ?, ?, ?)")
+                ->execute([$accountId, $name, $phone, $subject]);
+        } elseif ($role === 'parent') {
+            $pdo->prepare("INSERT INTO parents (account_id, name, phone) VALUES (?, ?, ?)")
+                ->execute([$accountId, $name, $phone]);
+            $parentId = $pdo->lastInsertId();
+            
+            $pdo->prepare("UPDATE students SET parent_id = ? WHERE phone = ? AND parent_id IS NULL")
+                ->execute([$parentId, $phone]);
+        }
+
+        $pdo->commit();
         jsonOut(['success' => true, 'message' => 'Đăng ký thành công!', 'status' => $status]);
     } catch (PDOException $e) {
+        $pdo->rollBack();
         if (str_contains($e->getMessage(), 'Duplicate')) {
             jsonOut(['success' => false, 'message' => 'Email đã được sử dụng'], 409);
         }
@@ -96,9 +141,18 @@ if ($action === 'me') {
     if (empty($_SESSION['user_id'])) {
         jsonOut(['success' => false, 'message' => 'Chưa đăng nhập'], 401);
     }
-    $stmt = $pdo->prepare("SELECT id,name,email,role,status,phone,address,subject FROM users WHERE id = ?");
-    $stmt->execute([$_SESSION['user_id']]);
-    $user = $stmt->fetch();
+    
+    $accountId = $_SESSION['user_id'];
+    $stmt = $pdo->prepare("SELECT id, email, role, status FROM user_accounts WHERE id = ?");
+    $stmt->execute([$accountId]);
+    $account = $stmt->fetch();
+    
+    if (!$account) {
+        jsonOut(['success' => false, 'message' => 'Tài khoản không tồn tại'], 404);
+    }
+    
+    $profile = getProfileData($pdo, $accountId, $account['role']);
+    $user = array_merge($account, $profile ?? []);
     jsonOut(['success' => true, 'user' => $user]);
 }
 
@@ -107,14 +161,27 @@ if ($action === 'update_profile') {
     if (empty($_SESSION['user_id'])) {
         jsonOut(['success' => false, 'message' => 'Chưa đăng nhập'], 401);
     }
+    
+    $accountId = $_SESSION['user_id'];
+    $role = $_SESSION['role'];
+    
     $name    = trim($input['name'] ?? '');
     $phone   = trim($input['phone'] ?? '');
     $address = trim($input['address'] ?? '');
 
+    $table = $role . 's';
+    if (!in_array($role, ['admin', 'teacher', 'student', 'parent'])) {
+         jsonOut(['success' => false, 'message' => 'Vai trò không hợp lệ'], 400);
+    }
+
     $stmt = $pdo->prepare(
-        "UPDATE users SET name=?, phone=?, address=? WHERE id=?"
+        "UPDATE $table SET name=?, phone=?, address=? WHERE account_id=?"
     );
-    $stmt->execute([$name, $phone, $address, $_SESSION['user_id']]);
+    $stmt->execute([$name, $phone, $address, $accountId]);
+    
+    // Cập nhật session name
+    $_SESSION['name'] = $name;
+    
     jsonOut(['success' => true, 'message' => 'Đã lưu thay đổi']);
 }
 
